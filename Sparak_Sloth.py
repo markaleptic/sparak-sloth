@@ -17,21 +17,52 @@ SMALL_FONT = ("Verdana", 8)
 BACKGROUND_COLOR = Color("#FCEBAE")
 SPARAK_TIME_FORMAT = "%m%d%Y"
 
+pyautogui.FAILSAFE = True
 
 filename = ""
 filepath = "C:"
 defaultBatchNumber = "48"
+
+##############################
+# DEFAULT SPARAK INFORMATION #
+##############################
+
+#############
+# Log Me In #
+Open_Sparak_Coordinate = (340, 881)
+Trans_Input_Coorindate = (292, 156)
+Password_Field_Coorindate = (438, 342)
+Select_Trans_Manual_Coordinate = (42, 192)
+Select_Input_Trans_Coordinate = (124, 210)
+Select_Process_Button_Coordinate = (553, 498) 
+Add_Entries_Coordinate = (31, 103)
+Sparak_Password = "1234Sbux#"
+Select_Okay_PW_Coordinate = (328, 380)  # or press enter
+
+################
+# Input Screen #
+
+Distribution_Coorindate = (61, 251)
+Account_Num_Coorindate = (218, 251)
+Tran_Code_Coorindate = (331, 251)
+Amount_Coordinate = (427, 251)
+Effective_Date_Coorindate = (530, 244)
+Description_Coorindate = (145, 315)
+
+###########
+# Buttons #
+
+OK_Button_Coorindate = (242, 370)
+Cancel_Button_Coorindate = (394, 370)
+Exit_Button_Coordinate = (553, 370)
+
+
 
 
 
 #TODO: Create menu to see user statistics like how many times the application has been used
 
 #TODO: Add to setting menu the option to always add to the description of entries that the entry was made by the Sparak Accounting Sloth
-
-
-#TODO: Define method for initializing or clearing the array of payments 
-
-
 
 #TODO: Check the array for errors
         # Distribution Code = 0 < X <= 2 Digits
@@ -66,7 +97,7 @@ class Sparak_Sloth(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, EntryPage, DailyReports, SettingsPage):
+        for F in (StartPage, EntryPage,  SettingsPage):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -98,15 +129,13 @@ class StartPage(tk.Frame):
         button1 = ttk.Button(self, text="Enter Transactions",
                             command=lambda: controller.show_frame(EntryPage))
         button1.pack(pady=1, ipadx=6)
-        button2 = ttk.Button(self, text="Collect Daily Reports",
-                            command=lambda: controller.show_frame(DailyReports))
-        button2.pack(pady=1)
-        button3 = ttk.Button(self, text="Settings",
+
+        button2 = ttk.Button(self, text="Settings",
                             command=lambda: controller.show_frame(SettingsPage))
-        button3.pack(pady=1, ipadx=22)
-        button4 = ttk.Button(self, text="Quit Application",
+        button2.pack(pady=1, ipadx=22)
+        button3 = ttk.Button(self, text="Quit Application",
                             command=quit)
-        button4.pack(pady=1, ipadx=12)
+        button3.pack(pady=1, ipadx=12)
     
    
 class EntryPage(tk.Frame):
@@ -139,38 +168,38 @@ class EntryPage(tk.Frame):
 
         button1 = ttk.Button(self, text="Load Transactions",
                              command=lambda: selectFile(self))
-        button1.grid(row=1, column=1, columnspan=1,  pady=10)
-        button2 = ttk.Button(self, text="Enter Transactions")
-        button2.grid(row=1, column=2, columnspan=1, pady=10) 
+        button1.grid(row=1, column=2, ipadx=10, padx=5, sticky=E)
+        button2 = ttk.Button(self, text="Enter Transactions",
+                             command=lambda: login_sparak())
+        button2.grid(row=2, column=2, ipadx=9, padx=5, sticky=E) 
         button3 = ttk.Button(self, text="Clear Transactions",
                              command=lambda: clear_payment_box(self))
-        button3.grid(row=1, column=3, columnspan=1, pady=10)
+        button3.grid(row=1, column=3, ipadx=8, sticky=W)
         button4 = ttk.Button(self, text="Return to Main Menu",
                             command=lambda: controller.show_frame(StartPage))
-        button4.grid(row=1, column=4, columnspan=1, pady=10)
-
-        
+        button4.grid(row=2, column=3, sticky=W)
+ 
 
         tree = ttk.Treeview(self)
         tree['columns'] = ('distribution','account_number','tran_code','amount','effective_date','description',)
         tree.heading("#0", text='Tran ID', anchor=W)
         tree.column("#0",stretch=NO, width=10, anchor=W)
-        tree.column('distribution', width=30, anchor=W)
-        tree.heading('distribution', text='Distribution')        
+        tree.column('distribution', width=3, anchor=W)
+        tree.heading('distribution', text='Distr')        
         tree.column('account_number', width=30, anchor=W)
         tree.heading('account_number', text='Account')        
         tree.column('tran_code', width=30, anchor=E)
         tree.heading('tran_code', text='Tran Code')       
         tree.column('amount', width=30, anchor=E)
         tree.heading('amount', text='Amount')       
-        tree.column('effective_date', width=30, anchor=W)
+        tree.column('effective_date', width=40, anchor=W)
         tree.heading('effective_date', text='Eff Dt')        
         tree.column('description', width=100, anchor=W)
         tree.heading('description', text='Description')
         ttk.Style().configure("Treeview", font=NORM_FONT, background='grey',
                               foreground='white',fieldbackground=BACKGROUND_COLOR)
         
-        tree.grid(row=2, column=0, columnspan=6, ipadx=150, ipady=120, pady=20)
+        tree.grid(row=3, column=0, columnspan=6, ipadx=150, ipady=120, pady=20)
 
         def selectFile(self):
             # Add adjustment to show all forms of excel files - xlsm, xls, etc
@@ -230,33 +259,36 @@ class EntryPage(tk.Frame):
                             input correctly.""")
 
         def clear_payment_box(self):
-            payment_box.delete(0, END)
+            x = tree.get_children()
+            if x != '()':
+                for child in x:
+                    tree.delete(child)          
+
+        def enter_into_sparak(self, paymentArray):
+            for x in paymentArray:
+                x = 1
+        def login_sparak():
+            pyautogui.click(Open_Sparak_Coordinate)
+            pyautogui.PAUSE = 5
+            pyautogui.click(Trans_Input_Coorindate)
+            pyautogui.PAUSE = 5
+            pyautogui.click(Password_Field_Coorindate)
+            pyautogui.typewrite(Sparak_Password)
+            pyautogui.PAUSE = 5
+            pyautogui.click(Select_Okay_PW_Coordinate)
+
+            # Do stuff
 
 
-class DailyReports(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self,parent)
-# --------------------- Background Image ---------------------
-        width, height = 1024, 640
-        image = Image.open('slothBackground.png')
-        if image.size != (width, height):
-            image = image.resize((width, height), Image.ANTIALIAS)
-
-        image = ImageTk.PhotoImage(image)
-        bg_label = tk.Label(self, image = image)
-        bg_label.place(x=0, y=0, relwidth=1, relheight=1)
-        bg_label.image = image
-# --------------------- Background Image ---------------------
-        
-        label = tk.Label(self, text=("Daily Report Collection"), bg=BACKGROUND_COLOR, font=LARGE_FONT)
-        label.pack(pady=10,padx=10)
-        button1 = ttk.Button(self, text="Collect Daily Reports From Sparak",
-                            command=lambda: controller.show_frame(StartPage))
-        button1.pack()
-        button2 = ttk.Button(self, text="Return to Main Menu",
-                            command=lambda: controller.show_frame(StartPage))
-        button2.pack(pady=1, ipadx=32)                
-
+#Open_Sparak_Coordinate = (337, 871)
+#Trans_Input_Coorindate = (292, 156)
+#Password_Field_Coorindate = (438, 342)
+#Select_Trans_Manual_Coordinate = (42, 192)
+#Select_Input_Trans_Coordinate = (124, 210)
+#Select_Process_Button_Coordinate = (553, 498) 
+#Add_Entries_Coordinate = (31, 103)
+#Sparak_Password = "1234Sbux#"
+#Select_Okay_PW_Coordinate = (328, 380)  # or press enter
 
 class SettingsPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -282,7 +314,37 @@ class SettingsPage(tk.Frame):
    
 
 app = Sparak_Sloth()
-app.geometry("800x640")
+app.geometry("640x640")
 app.resizable(0,0)
 #app.after(0,openFile)
 app.mainloop()
+
+
+
+##############################
+# COLLECT DAILY REPORTS CODE #
+##############################
+
+#class DailyReports(tk.Frame):
+#    def __init__(self, parent, controller):
+#        tk.Frame.__init__(self,parent)
+## --------------------- Background Image ---------------------
+#        width, height = 1024, 640
+#        image = Image.open('slothBackground.png')
+#        if image.size != (width, height):
+#            image = image.resize((width, height), Image.ANTIALIAS)
+
+#        image = ImageTk.PhotoImage(image)
+#        bg_label = tk.Label(self, image = image)
+#        bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+#        bg_label.image = image
+## --------------------- Background Image ---------------------
+        
+#        label = tk.Label(self, text=("Daily Report Collection"), bg=BACKGROUND_COLOR, font=LARGE_FONT)
+#        label.pack(pady=10,padx=10)
+#        button1 = ttk.Button(self, text="Collect Daily Reports From Sparak",
+#                            command=lambda: controller.show_frame(StartPage))
+#        button1.pack()
+#        button2 = ttk.Button(self, text="Return to Main Menu",
+#                            command=lambda: controller.show_frame(StartPage))
+#        button2.pack(pady=1, ipadx=32)
