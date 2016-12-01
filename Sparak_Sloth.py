@@ -10,6 +10,7 @@ import openpyxl
 from openpyxl.cell import get_column_letter
 import os
 import datetime
+import time
 
 LARGE_FONT = ("Verdana", 12)
 NORM_FONT = ("Verdana", 10)
@@ -170,7 +171,7 @@ class EntryPage(tk.Frame):
                              command=lambda: selectFile(self))
         button1.grid(row=1, column=2, ipadx=10, padx=5, sticky=E)
         button2 = ttk.Button(self, text="Enter Transactions",
-                             command=lambda: login_sparak())
+                             command=lambda: enter_into_sparak(self, paymentArray))
         button2.grid(row=2, column=2, ipadx=9, padx=5, sticky=E) 
         button3 = ttk.Button(self, text="Clear Transactions",
                              command=lambda: clear_payment_box(self))
@@ -201,6 +202,9 @@ class EntryPage(tk.Frame):
         
         tree.grid(row=3, column=0, columnspan=6, ipadx=150, ipady=120, pady=20)
 
+        paymentArray = []
+
+
         def selectFile(self):
             # Add adjustment to show all forms of excel files - xlsm, xls, etc
             filename = askopenfilename(filetypes = (("Excel Files","*.xlsx"),("CSV Files","*.csv")),
@@ -222,7 +226,7 @@ class EntryPage(tk.Frame):
                 popupmsg("Error opening the file you requested or you did not select a file.")
 
         def openFile(filepath, filename):
-            paymentArray = []
+            
 
             os.chdir(filepath)
             wb = openpyxl.load_workbook(filename)
@@ -262,33 +266,65 @@ class EntryPage(tk.Frame):
             x = tree.get_children()
             if x != '()':
                 for child in x:
-                    tree.delete(child)          
+                    tree.delete(child)
+            del paymentArray[:]
+
+        def write_to_sparak(sparak_value):
+            pyautogui.typewrite(str(sparak_value))
+        def tab_over():
+            pyautogui.press('tab')
+        def select_position(coordinate_variable):
+            pyautogui.moveTo(coordinate_variable, duration=1)
+            pyautogui.click()
+
 
         def enter_into_sparak(self, paymentArray):
-            for x in paymentArray:
-                x = 1
-        def login_sparak():
-            pyautogui.click(Open_Sparak_Coordinate)
-            pyautogui.PAUSE = 5
-            pyautogui.click(Trans_Input_Coorindate)
-            pyautogui.PAUSE = 5
-            pyautogui.click(Password_Field_Coorindate)
-            pyautogui.typewrite(Sparak_Password)
-            pyautogui.PAUSE = 5
-            pyautogui.click(Select_Okay_PW_Coordinate)
+            if(len(paymentArray) == 0):
+                popupmsg('No entries available to enter.\nPlease load entries to enter into Sparak.')
+            else:
+                select_position((30,108))
+                time.sleep(1.5)
 
-            # Do stuff
+                dist_pos = (73, 250)
+                acct_pos = (248, 250)
+                tran_pos = (325, 250)
+                amt_pos = (422, 250)
+                date_pos = (529, 250)
+                desc_pos = (163, 313)
+
+                counter = 1
+
+                #select_position(dist_pos)
+
+                for item in paymentArray:
+                    if counter == 7:
+                        # This tabs over the repeat distribution clickable button
+                        tab_over()
+                    elif counter == 8:
+                        # This pushes the entry
+                        print('I am about to confirm the entry\nI will pause for 5 seconds to\nallow you to exit then confirm\nthe entry')
+                        pyautogui.PAUSE = 5
+                    
+                        select_position((351,103))
+                        pyautogui.press('enter')
+                        counter = 1
+                    else:
+                        # This moves the loop forward
+                        write_to_sparak(item)
+                        pyautogui.PAUSE = 1
+                        tab_over()
+
+                    counter += 1
+
+                    # TODO:
+                    # The next distribution code isn't being entered
+                    # The next account number isn't being entered
+                    # The tran code is being entered in the distribution
+                    # area
 
 
-#Open_Sparak_Coordinate = (337, 871)
-#Trans_Input_Coorindate = (292, 156)
-#Password_Field_Coorindate = (438, 342)
-#Select_Trans_Manual_Coordinate = (42, 192)
-#Select_Input_Trans_Coordinate = (124, 210)
-#Select_Process_Button_Coordinate = (553, 498) 
-#Add_Entries_Coordinate = (31, 103)
-#Sparak_Password = "1234Sbux#"
-#Select_Okay_PW_Coordinate = (328, 380)  # or press enter
+
+
 
 class SettingsPage(tk.Frame):
     def __init__(self, parent, controller):
