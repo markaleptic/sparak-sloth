@@ -11,6 +11,7 @@ from openpyxl.cell import get_column_letter
 import os
 import datetime
 import time
+import timeit
 
 LARGE_FONT = ("Verdana", 12)
 NORM_FONT = ("Verdana", 10)
@@ -81,6 +82,7 @@ def popupmsg(msg):
     label.pack(side="top", fill="x", pady=10)
     B1 = ttk.Button(popup, text="Okay", command = popup.destroy)
     B1.pack()
+    popup.lift()
     popup.mainloop()
 
 
@@ -223,10 +225,9 @@ class EntryPage(tk.Frame):
                     i = i + 1
                 openFile(filepath, filename)
             else:
-                popupmsg("Error opening the file you requested or you did not select a file.")
+                popupmsg("There was an error opening the file you\nselected or a file was not selected.")
 
-        def openFile(filepath, filename):
-            
+        def openFile(filepath, filename):       
 
             os.chdir(filepath)
             wb = openpyxl.load_workbook(filename)
@@ -256,11 +257,7 @@ class EntryPage(tk.Frame):
                         tree.insert("","end",values = (str(paymentArray[i - 6]), str(paymentArray[i - 5]), str(paymentArray[i - 4]),\
                                                        str(paymentArray[i - 3]), str(paymentArray[i - 2]), str(paymentArray[i - 1])))
             else:
-                popupmsg("""There was an issue with loading your 
-                            transactions. Please make sure you're
-                            input file has the correct amount of 
-                            entries and each part of the entry is
-                            input correctly.""")
+                popupmsg('There was an issue with loading your transactions.\nPlease make sure you\'re input file has the correct\namount of entries and each part of the entry is\ninput correctly.')
 
         def clear_payment_box(self):
             x = tree.get_children()
@@ -271,56 +268,72 @@ class EntryPage(tk.Frame):
 
         def write_to_sparak(sparak_value):
             pyautogui.typewrite(str(sparak_value))
+
         def tab_over():
             pyautogui.press('tab')
+
         def select_position(coordinate_variable):
-            pyautogui.moveTo(coordinate_variable, duration=1)
+            pyautogui.moveTo(coordinate_variable, duration=.5)
             pyautogui.click()
 
 
         def enter_into_sparak(self, paymentArray):
+            time_interval = 0.00
+            start = timeit.default_timer()
             if(len(paymentArray) == 0):
-                popupmsg('No entries available to enter.\nPlease load entries to enter into Sparak.')
+                popupmsg('No entries available to enter. Please\nload entries to enter into Sparak.')
             else:
-                select_position((30,108))
-                time.sleep(1.5)
-
+                add_entry_pos = (32, 108)
                 dist_pos = (73, 250)
                 acct_pos = (248, 250)
                 tran_pos = (325, 250)
                 amt_pos = (422, 250)
                 date_pos = (529, 250)
                 desc_pos = (163, 313)
+                ok_button_pos = (245, 373)
+                cancel_button_pos = (398, 373)
+                exit_button_pos = (553, 373)
 
                 counter = 1
 
-                #select_position(dist_pos)
+                select_position(add_entry_pos)
+                pyautogui.PAUSE
 
                 for item in paymentArray:
-                    if counter == 7:
-                        # This tabs over the repeat distribution clickable button
-                        tab_over()
-                    elif counter == 8:
-                        # This pushes the entry
-                        print('I am about to confirm the entry\nI will pause for 5 seconds to\nallow you to exit then confirm\nthe entry')
-                        pyautogui.PAUSE = 5
-                    
-                        select_position((351,103))
-                        pyautogui.press('enter')
-                        counter = 1
-                    else:
-                        # This moves the loop forward
-                        write_to_sparak(item)
-                        pyautogui.PAUSE = 1
-                        tab_over()
+                    print('Counter: ' + str(counter) +'\nArray Value: ' + str(item))
 
+                    if counter < 6:
+                        write_to_sparak(item)
+                        pyautogui.PAUSE = time_interval
+                        tab_over()   
+                    elif counter == 6:
+                        write_to_sparak(item)       # Input Description
+                        pyautogui.PAUSE = time_interval
+                        tab_over()                  # Move to 'Repeat Distribution' box
+                        tab_over()                  # Move to ok_button
+                        pyautogui.press('return')   # This pushes the entry
+                        counter = 0
                     counter += 1
 
-                    # TODO:
-                    # The next distribution code isn't being entered
-                    # The next account number isn't being entered
-                    # The tran code is being entered in the distribution
-                    # area
+            stop = timeit.default_timer()
+            complete_time = (stop - start)
+
+            string_to_pass = 'Number of Entries: ' + str(len(paymentArray)/6) + '\nTime to complete: %.3f' % complete_time + ' seconds'
+            popupmsg(string_to_pass)
+
+                    #import pyautogui
+                    #delete_button = (82, 109)
+                    #ok_button = (319, 374)
+
+                    #i = 0
+                    #while i < 25:
+                    #    pyautogui.click(delete_button)
+                    #    pyautogui.pause = .5
+                    #    pyautogui.click(ok_button)
+                    #    i += 1
+
+
+
 
 
 
