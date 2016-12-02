@@ -19,48 +19,17 @@ SMALL_FONT = ("Verdana", 8)
 BACKGROUND_COLOR = Color("#FCEBAE")
 SPARAK_TIME_FORMAT = "%m%d%Y"
 
+DEBIT_TRAN_CODE = [1, 7, 9, 12, 19, 23, 24, 29, 31, 35, 39, 41, 45, 47, 49, 56, 59, 62, 64, 67, 69, 73]
+CREDIT_TRAN_CODE = [2, 4, 6, 8, 11, 18, 22, 28, 30, 36, 40, 42, 46, 48, 50, 55, 58, 61, 63, 66, 68, 72]
+
 pyautogui.FAILSAFE = True
 
 filename = ""
 filepath = "C:"
 defaultBatchNumber = "48"
 
-##############################
-# DEFAULT SPARAK INFORMATION #
-##############################
-
-#############
-# Log Me In #
-Open_Sparak_Coordinate = (340, 881)
-Trans_Input_Coorindate = (292, 156)
-Password_Field_Coorindate = (438, 342)
-Select_Trans_Manual_Coordinate = (42, 192)
-Select_Input_Trans_Coordinate = (124, 210)
-Select_Process_Button_Coordinate = (553, 498) 
-Add_Entries_Coordinate = (31, 103)
-Sparak_Password = "1234Sbux#"
-Select_Okay_PW_Coordinate = (328, 380)  # or press enter
-
-################
-# Input Screen #
-
-Distribution_Coorindate = (61, 251)
-Account_Num_Coorindate = (218, 251)
-Tran_Code_Coorindate = (331, 251)
-Amount_Coordinate = (427, 251)
-Effective_Date_Coorindate = (530, 244)
-Description_Coorindate = (145, 315)
-
-###########
-# Buttons #
-
-OK_Button_Coorindate = (242, 370)
-Cancel_Button_Coorindate = (394, 370)
-Exit_Button_Coordinate = (553, 370)
-
-
-
-
+debit_entry_total = 0.00
+credit_entry_total = 0.00
 
 #TODO: Create menu to see user statistics like how many times the application has been used
 
@@ -85,7 +54,6 @@ def popupmsg(msg):
     popup.lift()
     popup.mainloop()
 
-
 class Sparak_Sloth(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -109,7 +77,6 @@ class Sparak_Sloth(tk.Tk):
     def show_frame(self, cont):
         frame = self.frames[cont]
         frame.tkraise()
-
 
 class StartPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -139,8 +106,28 @@ class StartPage(tk.Frame):
         button3 = ttk.Button(self, text="Quit Application",
                             command=quit)
         button3.pack(pady=1, ipadx=12)
-    
-   
+
+class SettingsPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self,parent)
+# --------------------- Background Image ---------------------
+        width, height = 1024, 640
+        image = Image.open('slothBackground.png')
+        if image.size != (width, height):
+            image = image.resize((width, height), Image.ANTIALIAS)
+
+        image = ImageTk.PhotoImage(image)
+        bg_label = tk.Label(self, image = image)
+        bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+        bg_label.image = image
+# --------------------- Background Image ---------------------
+
+        label = tk.Label(self, text=("Settings"), bg=BACKGROUND_COLOR, font=LARGE_FONT)
+        label.pack(pady=10,padx=10)
+        button1 = ttk.Button(self, text="Return to Main Menu",
+                            command=lambda: controller.show_frame(StartPage))
+        button1.pack()                
+     
 class EntryPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self,parent)
@@ -206,10 +193,11 @@ class EntryPage(tk.Frame):
 
         paymentArray = []
 
-
+        # Method opens file explorer for user to select 
+        #input file
         def selectFile(self):
             # Add adjustment to show all forms of excel files - xlsm, xls, etc
-            filename = askopenfilename(filetypes = (("Excel Files","*.xlsx"),("CSV Files","*.csv")),
+            filename = askopenfilename(filetypes = [("Excel Files","*.xlsx; *.xlsm")],
                                title = "Choose a file:")
             filename = str(filename)
 
@@ -227,6 +215,8 @@ class EntryPage(tk.Frame):
             else:
                 popupmsg("There was an error opening the file you\nselected or a file was not selected.")
 
+        # Method opens input file and appends paymentArray with
+        # values from the excel file
         def openFile(filepath, filename):       
 
             os.chdir(filepath)
@@ -235,50 +225,78 @@ class EntryPage(tk.Frame):
             # Add functionality to select which sheet with a dialogue  box or something
             sheet = wb.get_sheet_by_name('Payment Sheet')
             end_of_sheet_range = get_column_letter(sheet.max_column) + str(sheet.max_row)
-    
             
+            # Fill array with excel data
             for rowOfCellObjects in sheet['A1':end_of_sheet_range]:
                 for cellObj in rowOfCellObjects:
                     if type(cellObj.value) is datetime.datetime:
                         paymentArray.append(str(cellObj.value.strftime("%m/%d/%Y")))
                     elif type(cellObj.value) is type(None):
-                        paymentArray.append("No Description")
+                        paymentArray.append("")
                     else:
                         paymentArray.append(cellObj.value)
-
-
+            # Call method to fill table in frame with array values
             entryFill(self, paymentArray)
-
+        
+        # Method fills table in entry frame with the array values
+        # and fills text window with debit / credit totals
         def entryFill(self, paymentArray):
+            global debit_entry_total
+            global credit_entry_total
 
             if len(paymentArray) % 6 == 0:
                 for i in range(1, (len(paymentArray)+1)):
                     if i%6==0:
                         tree.insert("","end",values = (str(paymentArray[i - 6]), str(paymentArray[i - 5]), str(paymentArray[i - 4]),\
                                                        str(paymentArray[i - 3]), str(paymentArray[i - 2]), str(paymentArray[i - 1])))
-            else:
-                popupmsg('There was an issue with loading your transactions.\nPlease make sure you\'re input file has the correct\namount of entries and each part of the entry is\ninput correctly.')
+                        if paymentArray[i - 6] in DEBIT_TRAN_CODE:
+                            debit_entry_total += paymentArray[i - 3]
+                        elif paymentArray[i - 6] in CREDIT_TRAN_CODE:
+                            credit_entry_total += paymentArray[i - 3]
+                        else:
+                            print('this isn\'t working how you think it is')
 
+            else:   
+                popupmsg('There was an issue with loading your transactions.\nPlease make sure you\'re input file has the correct\namount of entries and each part of the entry is\ninput correctly.')
+            
+            popupmsg('Total Debit Entries: ' + str(debit_entry_total) + '\nTotal Credit Entries: ' + str(credit_entry_total))
+
+        # Method empties the entries from table, clears array,
+        # and resets credit / debit totals.
         def clear_payment_box(self):
+            global debit_entry_total
+            global credit_entry_total
+            
+            # Remove items from tree table in entry view frame
             x = tree.get_children()
             if x != '()':
                 for child in x:
                     tree.delete(child)
+            # Clear array
             del paymentArray[:]
+            # Clear d / c totals
+            debit_entry_total = 0
+            credit_entry_total = 0
 
         def write_to_sparak(sparak_value):
             pyautogui.typewrite(str(sparak_value))
 
         def tab_over():
             pyautogui.press('tab')
-
+        # Method receives a x, y coordinate variable, moves to the
+        # coordinate and clicks it
         def select_position(coordinate_variable):
             pyautogui.moveTo(coordinate_variable, duration=.5)
             pyautogui.click()
-
-
+        
+        # Method receives paymentArray into input values into Sparak
+        # Starts from Input Transactions screen then selects the green
+        # 'New Transaction' button to bring up the 'New Transaction 
+        # window. In New Tran window, primary for-loop iterates through
+        # paymentArray and enters values or tabs based upon 8-digit
+        # counter. 8-digit counter is reset when an entry is confirmed. 
         def enter_into_sparak(self, paymentArray):
-            time_interval = 0.00
+            time_interval = 0.001
             start = timeit.default_timer()
             if(len(paymentArray) == 0):
                 popupmsg('No entries available to enter. Please\nload entries to enter into Sparak.')
@@ -312,7 +330,7 @@ class EntryPage(tk.Frame):
                         tab_over()                  # Move to 'Repeat Distribution' box
                         tab_over()                  # Move to ok_button
                         pyautogui.press('return')   # This pushes the entry
-                        counter = 0
+                        counter = 0                 # Reset counter for next entry
                     counter += 1
 
             stop = timeit.default_timer()
@@ -321,51 +339,35 @@ class EntryPage(tk.Frame):
             string_to_pass = 'Number of Entries: ' + str(len(paymentArray)/6) + '\nTime to complete: %.3f' % complete_time + ' seconds'
             popupmsg(string_to_pass)
 
-                    #import pyautogui
-                    #delete_button = (82, 109)
-                    #ok_button = (319, 374)
+        # Method deletes Sparak transactions based upon count received
+        # from user
+        def delete_sparak_entries(entryAmt):
+            delete_button = (82, 109)
+            ok_button = (319, 374)
 
-                    #i = 0
-                    #while i < 25:
-                    #    pyautogui.click(delete_button)
-                    #    pyautogui.pause = .5
-                    #    pyautogui.click(ok_button)
-                    #    i += 1
+            i = 0
+            while i < entryAmt:
+                # not using select_position because it's slower than clicking coordinates.
+                pyautogui.click(delete_button)
+                pyautogui.pause = .5
+                pyautogui.click(ok_button)
+                i += 1
 
+            #import pyautogui
+            #delete_button = (82, 109)
+            #ok_button = (319, 374)
 
-
-
-
-
-
-
-class SettingsPage(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self,parent)
-# --------------------- Background Image ---------------------
-        width, height = 1024, 640
-        image = Image.open('slothBackground.png')
-        if image.size != (width, height):
-            image = image.resize((width, height), Image.ANTIALIAS)
-
-        image = ImageTk.PhotoImage(image)
-        bg_label = tk.Label(self, image = image)
-        bg_label.place(x=0, y=0, relwidth=1, relheight=1)
-        bg_label.image = image
-# --------------------- Background Image ---------------------
-
-        label = tk.Label(self, text=("Settings"), bg=BACKGROUND_COLOR, font=LARGE_FONT)
-        label.pack(pady=10,padx=10)
-        button1 = ttk.Button(self, text="Return to Main Menu",
-                            command=lambda: controller.show_frame(StartPage))
-        button1.pack()                
-
+            #i = 0
+            #while i < 25:
+            #    pyautogui.click(delete_button)
+            #    pyautogui.pause = .5
+            #    pyautogui.click(ok_button)
+            #    i += 1
    
 
 app = Sparak_Sloth()
 app.geometry("640x640")
 app.resizable(0,0)
-#app.after(0,openFile)
 app.mainloop()
 
 
