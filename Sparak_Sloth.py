@@ -144,9 +144,15 @@ class EntryPage(tk.Frame):
 # --------------------- Background Image ---------------------
 
 
-        label = tk.Label(self, text=("Accounting Transactions"), bg=BACKGROUND_COLOR, font=LARGE_FONT)
-        label.grid(row=0, column=0, sticky=NSEW, columnspan=10)        
+        header_label = tk.Label(self, text=("Accounting Transactions"), bg=BACKGROUND_COLOR, font=LARGE_FONT)
+        header_label.grid(row=0, column=0, sticky=NSEW, columnspan=10)        
         
+        entry_data_label = tk.Label(self, text = "Debt Total: %.2f" % debit_entry_total + "\nCredit Total: %.2f" % credit_entry_total)
+        #######
+        # ADD .grid to finish this shit
+        ######
+
+
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(1, weight=1)      
         self.grid_columnconfigure(2, weight=1)
@@ -162,7 +168,7 @@ class EntryPage(tk.Frame):
         button2 = ttk.Button(self, text="Enter Transactions",
                              command=lambda: enter_into_sparak(self, paymentArray))
         button2.grid(row=2, column=2, ipadx=9, padx=5, sticky=E) 
-        button3 = ttk.Button(self, text="Clear Transactions",
+        button3 = ttk.Button(self, text="Clear Loaded Transactions",
                              command=lambda: clear_payment_box(self))
         button3.grid(row=1, column=3, ipadx=8, sticky=W)
         button4 = ttk.Button(self, text="Return to Main Menu",
@@ -352,7 +358,8 @@ class EntryPage(tk.Frame):
                 pyautogui.pause = .5
                 pyautogui.click(ok_button)
                 i += 1
-
+####################################################
+# COPY & PASTE TO REMOVE ENTRIES
             #import pyautogui
             #delete_button = (82, 109)
             #ok_button = (319, 374)
