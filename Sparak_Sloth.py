@@ -30,6 +30,8 @@ defaultBatchNumber = "48"
 
 debit_entry_total = 0.00
 credit_entry_total = 0.00
+input_file_name = "No File Selected"
+input_transaction_count = 0
 
 #TODO: Create menu to see user statistics like how many times the application has been used
 
@@ -68,7 +70,7 @@ class Sparak_Sloth(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, EntryPage,  SettingsPage):
+        for F in (StartPage, EntryPage,  DeletePage, SettingsPage):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -99,13 +101,15 @@ class StartPage(tk.Frame):
         button1 = ttk.Button(self, text="Enter Transactions",
                             command=lambda: controller.show_frame(EntryPage))
         button1.pack(pady=1, ipadx=6)
-
-        button2 = ttk.Button(self, text="Settings",
+        button2 = ttk.Button(self, text="Delete Transactions",
+                            command=lambda: controller.show_frame(DeletePage))
+        button2.pack(pady=1, ipadx=3)
+        button3 = ttk.Button(self, text="Settings",
                             command=lambda: controller.show_frame(SettingsPage))
-        button2.pack(pady=1, ipadx=22)
-        button3 = ttk.Button(self, text="Quit Application",
+        button3.pack(pady=1, ipadx=22)
+        button4 = ttk.Button(self, text="Quit Application",
                             command=quit)
-        button3.pack(pady=1, ipadx=12)
+        button4.pack(pady=1, ipadx=12)
 
 class SettingsPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -144,14 +148,19 @@ class EntryPage(tk.Frame):
 # --------------------- Background Image ---------------------
 
 
-        header_label = tk.Label(self, text=("Accounting Transactions"), bg=BACKGROUND_COLOR, font=LARGE_FONT)
+        def set_transaction_text(self):
+            label_text = (  "Input File Name: \t" + input_file_name + 
+                          "\nEntry Count:\t" + str(int(input_transaction_count)) + 
+                          "\nDebit Total:\t$" + format(debit_entry_total, ',.2f') + 
+                          "\nCredit Total:\t$" + format(credit_entry_total, ',.2f'))
+            return label_text
+
+        header_label = tk.Label(self, text=("Enter Sparak Transactions"), bg=BACKGROUND_COLOR, font=LARGE_FONT)
         header_label.grid(row=0, column=0, sticky=NSEW, columnspan=10)        
         
-        entry_data_label = tk.Label(self, text = "Debt Total: %.2f" % debit_entry_total + "\nCredit Total: %.2f" % credit_entry_total)
-        #######
-        # ADD .grid to finish this shit
-        ######
-
+        entry_data_label = tk.Label(self, text=set_transaction_text(self),justify=LEFT, relief=GROOVE)
+        entry_data_label.grid(row=1, column=1, rowspan=3, columnspan=1, sticky=E)
+        #entry_data_label.config(bd=2)
 
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(1, weight=1)      
@@ -170,10 +179,11 @@ class EntryPage(tk.Frame):
         button2.grid(row=2, column=2, ipadx=9, padx=5, sticky=E) 
         button3 = ttk.Button(self, text="Clear Loaded Transactions",
                              command=lambda: clear_payment_box(self))
-        button3.grid(row=1, column=3, ipadx=8, sticky=W)
+        button3.grid(row=1, column=3, sticky=W)
+
         button4 = ttk.Button(self, text="Return to Main Menu",
                             command=lambda: controller.show_frame(StartPage))
-        button4.grid(row=2, column=3, sticky=W)
+        button4.grid(row=2, column=3, ipadx=13, sticky=W)
  
 
         tree = ttk.Treeview(self)
@@ -195,13 +205,14 @@ class EntryPage(tk.Frame):
         ttk.Style().configure("Treeview", font=NORM_FONT, background='grey',
                               foreground='white',fieldbackground=BACKGROUND_COLOR)
         
-        tree.grid(row=3, column=0, columnspan=6, ipadx=150, ipady=120, pady=20)
+        tree.grid(row=4, column=0, columnspan=6, ipadx=150, ipady=120, pady=20)
 
         paymentArray = []
 
         # Method opens file explorer for user to select 
         #input file
         def selectFile(self):
+            global input_file_name
             # Add adjustment to show all forms of excel files - xlsm, xls, etc
             filename = askopenfilename(filetypes = [("Excel Files","*.xlsx; *.xlsm")],
                                title = "Choose a file:")
@@ -217,6 +228,7 @@ class EntryPage(tk.Frame):
                 while (i < mylistSize - 1):
                     filepath = filepath + mylist[i] + "/"
                     i = i + 1
+                input_file_name = filename
                 openFile(filepath, filename)
             else:
                 popupmsg("There was an error opening the file you\nselected or a file was not selected.")
@@ -249,8 +261,10 @@ class EntryPage(tk.Frame):
         def entryFill(self, paymentArray):
             global debit_entry_total
             global credit_entry_total
+            global input_transaction_count
 
             if len(paymentArray) % 6 == 0:
+                input_transaction_count = len(paymentArray) / 6
                 for i in range(1, (len(paymentArray)+1)):
                     if i%6==0:
                         tree.insert("","end",values = (str(paymentArray[i - 6]), str(paymentArray[i - 5]), str(paymentArray[i - 4]),\
@@ -265,13 +279,16 @@ class EntryPage(tk.Frame):
             else:   
                 popupmsg('There was an issue with loading your transactions.\nPlease make sure you\'re input file has the correct\namount of entries and each part of the entry is\ninput correctly.')
             
-            popupmsg('Total Debit Entries: ' + str(debit_entry_total) + '\nTotal Credit Entries: ' + str(credit_entry_total))
+            entry_data_label.configure(text=set_transaction_text(self))
+            #popupmsg('Total Debit Entries: ' + str(debit_entry_total) + '\nTotal Credit Entries: ' + str(credit_entry_total))
 
         # Method empties the entries from table, clears array,
         # and resets credit / debit totals.
         def clear_payment_box(self):
             global debit_entry_total
             global credit_entry_total
+            global input_file_name
+            global input_transaction_count
             
             # Remove items from tree table in entry view frame
             x = tree.get_children()
@@ -280,9 +297,13 @@ class EntryPage(tk.Frame):
                     tree.delete(child)
             # Clear array
             del paymentArray[:]
-            # Clear d / c totals
-            debit_entry_total = 0
-            credit_entry_total = 0
+
+            # Clear d / c totals & reset text
+            debit_entry_total = 0.00
+            credit_entry_total = 0.00
+            input_file_name = "No File Selected"
+            input_transaction_count = 0
+            entry_data_label.configure(text=set_transaction_text(self))
 
         def write_to_sparak(sparak_value):
             pyautogui.typewrite(str(sparak_value))
@@ -345,8 +366,50 @@ class EntryPage(tk.Frame):
             string_to_pass = 'Number of Entries: ' + str(len(paymentArray)/6) + '\nTime to complete: %.3f' % complete_time + ' seconds'
             popupmsg(string_to_pass)
 
-        # Method deletes Sparak transactions based upon count received
-        # from user
+class DeletePage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self,parent)
+# --------------------- Background Image ---------------------
+        width, height = 1024, 640
+        image = Image.open('slothBackground.png')
+        if image.size != (width, height):
+            image = image.resize((width, height), Image.ANTIALIAS)
+
+        image = ImageTk.PhotoImage(image)
+        bg_label = tk.Label(self, image = image)
+        bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+        bg_label.image = image
+# --------------------- Background Image ---------------------
+
+        label = tk.Label(self, text=("Delete Sparak Transactions"), bg=BACKGROUND_COLOR, font=LARGE_FONT)
+        label.pack(pady=10,padx=10)
+        button1 = ttk.Button(self, text="Return to Main Menu",
+                            command=lambda: controller.show_frame(StartPage))
+        button1.pack() 
+
+
+        def receive_delete_count(self):
+            def get_entry_value(input_box):
+                print(entry_num.get())
+            input_box = tk.Tk()
+            input_box.wm_title("Input Sloth")
+            label = ttk.Label(input_box, text='Number of transactions to delete', font=NORM_FONT)
+            entry_num = tk.IntVar()
+            ent = ttk.Entry(input_box, textvariable=entry_num)
+            label.pack()
+            ent.pack(fill=X)
+            enter_button = ttk.Button(input_box, text="Enter", command = input_box.destroy)
+            cancel_button = ttk.Button(input_box, text="Cancel", command = input_box.destroy)
+            enter_button.pack(side=LEFT)
+            cancel_button.pack(side=LEFT)
+            input_box.lift()
+            input_box.mainloop()
+
+        def validate(input_box, P):
+            input_box.enter_button.config(state=(NORMAL if P else DISABLED))
+            return True
+        
+
         def delete_sparak_entries(entryAmt):
             delete_button = (82, 109)
             ok_button = (319, 374)
@@ -358,18 +421,8 @@ class EntryPage(tk.Frame):
                 pyautogui.pause = .5
                 pyautogui.click(ok_button)
                 i += 1
-####################################################
-# COPY & PASTE TO REMOVE ENTRIES
-            #import pyautogui
-            #delete_button = (82, 109)
-            #ok_button = (319, 374)
 
-            #i = 0
-            #while i < 25:
-            #    pyautogui.click(delete_button)
-            #    pyautogui.pause = .5
-            #    pyautogui.click(ok_button)
-            #    i += 1
+
    
 
 app = Sparak_Sloth()
