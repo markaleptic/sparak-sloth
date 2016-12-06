@@ -13,6 +13,10 @@ import datetime
 import time
 import timeit
 
+
+###################################
+#           CONSTANTS             #
+###################################
 LARGE_FONT = ("Verdana", 12)
 NORM_FONT = ("Verdana", 10)
 SMALL_FONT = ("Verdana", 8)
@@ -22,18 +26,16 @@ SPARAK_TIME_FORMAT = "%m%d%Y"
 DEBIT_TRAN_CODE = [1, 7, 9, 12, 19, 23, 24, 29, 31, 35, 39, 41, 45, 47, 49, 56, 59, 62, 64, 67, 69, 73]
 CREDIT_TRAN_CODE = [2, 4, 6, 8, 11, 18, 22, 28, 30, 36, 40, 42, 46, 48, 50, 55, 58, 61, 63, 66, 68, 72]
 
-pyautogui.FAILSAFE = True
-
-filename = ""
-filepath = "C:"
-defaultBatchNumber = "48"
-
+###################################
+#        Global Variables         #     
+###################################
 debit_entry_total = 0.00
 credit_entry_total = 0.00
 input_file_name = "No File Selected"
 input_transaction_count = 0
 
-#TODO: Create menu to see user statistics like how many times the application has been used
+
+#TODO: Create menu to see user statistics like how many times the application has been used, volume of debit / credits, # of entries
 
 #TODO: Add to setting menu the option to always add to the description of entries that the entry was made by the Sparak Accounting Sloth
 
@@ -70,7 +72,7 @@ class Sparak_Sloth(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, EntryPage,  DeletePage, SettingsPage):
+        for F in (StartPage, EntryPage,  DeletePage, SettingsPage): # All pages have to go in the frames list for frames to pull up window
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -145,8 +147,7 @@ class EntryPage(tk.Frame):
         bg_label = tk.Label(self, image = image)
         bg_label.place(x=0, y=0, relwidth=1, relheight=1)
         bg_label.image = image
-# --------------------- Background Image ---------------------
-
+# ------------------------------------------------------------
 
         def set_transaction_text(self):
             label_text = (  "Input File Name: \t" + input_file_name + 
@@ -154,14 +155,16 @@ class EntryPage(tk.Frame):
                           "\nDebit Total:\t$" + format(debit_entry_total, ',.2f') + 
                           "\nCredit Total:\t$" + format(credit_entry_total, ',.2f'))
             return label_text
-
-        header_label = tk.Label(self, text=("Enter Sparak Transactions"), bg=BACKGROUND_COLOR, font=LARGE_FONT)
-        header_label.grid(row=0, column=0, sticky=NSEW, columnspan=10)        
         
+        # Frame header text
+        header_label = tk.Label(self, text=("Enter Sparak Transactions"), bg=BACKGROUND_COLOR, font=LARGE_FONT)
+        header_label.grid(row=0, column=0, sticky=NSEW, columnspan=10)
+                
+        # Label to entry data: input file name, number of entries to make, and the debit / credit 
         entry_data_label = tk.Label(self, text=set_transaction_text(self),justify=LEFT, relief=GROOVE)
         entry_data_label.grid(row=1, column=1, rowspan=3, columnspan=1, sticky=E)
-        #entry_data_label.config(bd=2)
-
+        
+        # set weights for grid to format buttons
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(1, weight=1)      
         self.grid_columnconfigure(2, weight=1)
@@ -185,16 +188,16 @@ class EntryPage(tk.Frame):
                             command=lambda: controller.show_frame(StartPage))
         button4.grid(row=2, column=3, ipadx=13, sticky=W)
  
-
+        # Tree Formatting
         tree = ttk.Treeview(self)
         tree['columns'] = ('distribution','account_number','tran_code','amount','effective_date','description',)
         tree.heading("#0", text='Tran ID', anchor=W)
         tree.column("#0",stretch=NO, width=10, anchor=W)
         tree.column('distribution', width=3, anchor=W)
         tree.heading('distribution', text='Distr')        
-        tree.column('account_number', width=30, anchor=W)
+        tree.column('account_number', width=40, anchor=W)
         tree.heading('account_number', text='Account')        
-        tree.column('tran_code', width=30, anchor=E)
+        tree.column('tran_code', width=25, anchor=E)
         tree.heading('tran_code', text='Tran Code')       
         tree.column('amount', width=30, anchor=E)
         tree.heading('amount', text='Amount')       
@@ -204,9 +207,8 @@ class EntryPage(tk.Frame):
         tree.heading('description', text='Description')
         ttk.Style().configure("Treeview", font=NORM_FONT, background='grey',
                               foreground='white',fieldbackground=BACKGROUND_COLOR)
-        
         tree.grid(row=4, column=0, columnspan=6, ipadx=150, ipady=120, pady=20)
-
+        # Class Object Array
         paymentArray = []
 
         # Method opens file explorer for user to select 
@@ -237,7 +239,7 @@ class EntryPage(tk.Frame):
         # values from the excel file
         def openFile(filepath, filename):       
 
-            os.chdir(filepath)
+            os.chdir(filepath)  # Change directory
             wb = openpyxl.load_workbook(filename)
     
             # Add functionality to select which sheet with a dialogue  box or something
@@ -323,7 +325,7 @@ class EntryPage(tk.Frame):
         # paymentArray and enters values or tabs based upon 8-digit
         # counter. 8-digit counter is reset when an entry is confirmed. 
         def enter_into_sparak(self, paymentArray):
-            time_interval = 0.001
+            time_interval = 0.002
             start = timeit.default_timer()
             if(len(paymentArray) == 0):
                 popupmsg('No entries available to enter. Please\nload entries to enter into Sparak.')
@@ -383,6 +385,14 @@ class DeletePage(tk.Frame):
 
         label = tk.Label(self, text=("Delete Sparak Transactions"), bg=BACKGROUND_COLOR, font=LARGE_FONT)
         label.pack(pady=10,padx=10)
+
+        vcmd = (parent.register(self.onValidate),
+                '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+        self.delete_count_entry = tk.Entry(self, validate = 'key', validatecommand = vcmd)
+        self.delete_count_text = tk.Text(self, height=10, width=40)
+        self.delete_count_entry.pack(side=TOP, fill=X)
+        self.delete_count_text.pack(side=BOTTOM, fill=BOTH, expand=True)
+
         button1 = ttk.Button(self, text="Return to Main Menu",
                             command=lambda: controller.show_frame(StartPage))
         button1.pack() 
@@ -405,12 +415,13 @@ class DeletePage(tk.Frame):
             input_box.lift()
             input_box.mainloop()
 
-        def validate(input_box, P):
-            input_box.enter_button.config(state=(NORMAL if P else DISABLED))
-            return True
-        
+        #def validate(input_box, P):
+        #    input_box.enter_button.config(state=(NORMAL if P else DISABLED))
+        #    return True 
 
         def delete_sparak_entries(entryAmt):
+            #import pyautogui
+            #entryAmt = 166
             delete_button = (82, 109)
             ok_button = (319, 374)
 
@@ -418,44 +429,32 @@ class DeletePage(tk.Frame):
             while i < entryAmt:
                 # not using select_position because it's slower than clicking coordinates.
                 pyautogui.click(delete_button)
-                pyautogui.pause = .5
+                pyautogui.pause = .05
                 pyautogui.click(ok_button)
                 i += 1
 
 
-   
+    def onValidate(self, d, i, P, s, S, v, V, W):
+        self.text.delete("1.0", "end")
+        self.text.insert("end","OnValidate:\n")
+        self.text.insert("end","d='%s'\n" % d)
+        self.text.insert("end","i='%s'\n" % i)
+        self.text.insert("end","P='%s'\n" % P)
+        self.text.insert("end","s='%s'\n" % s)
+        self.text.insert("end","S='%s'\n" % S)
+        self.text.insert("end","v='%s'\n" % v)
+        self.text.insert("end","V='%s'\n" % V)
+        self.text.insert("end","W='%s'\n" % W)
+
+        # Disallow anything but lowercase letters
+        valid = (S.lower() == S)
+        if not valid:
+            self.bell()
+        return valid
+
+
 
 app = Sparak_Sloth()
-app.geometry("640x640")
-app.resizable(0,0)
+app.geometry("640x640")     # Sets app window size
+app.resizable(0,0)          # Keeps window size fixed
 app.mainloop()
-
-
-
-##############################
-# COLLECT DAILY REPORTS CODE #
-##############################
-
-#class DailyReports(tk.Frame):
-#    def __init__(self, parent, controller):
-#        tk.Frame.__init__(self,parent)
-## --------------------- Background Image ---------------------
-#        width, height = 1024, 640
-#        image = Image.open('slothBackground.png')
-#        if image.size != (width, height):
-#            image = image.resize((width, height), Image.ANTIALIAS)
-
-#        image = ImageTk.PhotoImage(image)
-#        bg_label = tk.Label(self, image = image)
-#        bg_label.place(x=0, y=0, relwidth=1, relheight=1)
-#        bg_label.image = image
-## --------------------- Background Image ---------------------
-        
-#        label = tk.Label(self, text=("Daily Report Collection"), bg=BACKGROUND_COLOR, font=LARGE_FONT)
-#        label.pack(pady=10,padx=10)
-#        button1 = ttk.Button(self, text="Collect Daily Reports From Sparak",
-#                            command=lambda: controller.show_frame(StartPage))
-#        button1.pack()
-#        button2 = ttk.Button(self, text="Return to Main Menu",
-#                            command=lambda: controller.show_frame(StartPage))
-#        button2.pack(pady=1, ipadx=32)
