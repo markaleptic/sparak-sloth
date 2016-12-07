@@ -3,6 +3,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter.filedialog import askopenfilename
+from tkinter.simpledialog import askinteger
 from PIL import Image, ImageTk
 import pyautogui
 from colour import Color
@@ -22,7 +23,21 @@ NORM_FONT = ("Verdana", 10)
 SMALL_FONT = ("Verdana", 8)
 BACKGROUND_COLOR = Color("#FCEBAE")
 SPARAK_TIME_FORMAT = "%m%d%Y"
+DELETE_BUTTON = (82, 109)
+OK_BUTTON = (319, 374)
+ADD_ENTRY_POS = (32, 108)
+DIST_POS = (73, 250)
+ACCT_POS = (248, 250)
+TRAN_POS = (325, 250)
+AMT_POS = (422, 250)
+DATE_POS = (529, 250)
+DESC_POS = (163, 313)
+OK_BUTTON_POS = (245, 373)
+CANCEL_BUTTON_POS = (398, 373)
+EXIT_BUTTON_POS = (553, 373)
+TIME_INTERVAL = 0.002
 
+#Sparak Tran Codes
 DEBIT_TRAN_CODE = [1, 7, 9, 12, 19, 23, 24, 29, 31, 35, 39, 41, 45, 47, 49, 56, 59, 62, 64, 67, 69, 73]
 CREDIT_TRAN_CODE = [2, 4, 6, 8, 11, 18, 22, 28, 30, 36, 40, 42, 46, 48, 50, 55, 58, 61, 63, 66, 68, 72]
 
@@ -72,7 +87,7 @@ class Sparak_Sloth(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, EntryPage,  DeletePage, SettingsPage): # All pages have to go in the frames list for frames to pull up window
+        for F in (StartPage, EntryPage, SettingsPage): # All pages have to go in the frames list for frames to pull up window
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -103,15 +118,12 @@ class StartPage(tk.Frame):
         button1 = ttk.Button(self, text="Enter Transactions",
                             command=lambda: controller.show_frame(EntryPage))
         button1.pack(pady=1, ipadx=6)
-        button2 = ttk.Button(self, text="Delete Transactions",
-                            command=lambda: controller.show_frame(DeletePage))
-        button2.pack(pady=1, ipadx=3)
-        button3 = ttk.Button(self, text="Settings",
+        button2 = ttk.Button(self, text="Settings",
                             command=lambda: controller.show_frame(SettingsPage))
-        button3.pack(pady=1, ipadx=22)
-        button4 = ttk.Button(self, text="Quit Application",
+        button2.pack(pady=1, ipadx=22)
+        button2 = ttk.Button(self, text="Quit Application",
                             command=quit)
-        button4.pack(pady=1, ipadx=12)
+        button2.pack(pady=1, ipadx=12)
 
 class SettingsPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -162,7 +174,7 @@ class EntryPage(tk.Frame):
                 
         # Label to entry data: input file name, number of entries to make, and the debit / credit 
         entry_data_label = tk.Label(self, text=set_transaction_text(self),justify=LEFT, relief=GROOVE)
-        entry_data_label.grid(row=1, column=1, rowspan=3, columnspan=1, sticky=E)
+        entry_data_label.grid(row=1, column=1, rowspan=4, columnspan=1, sticky=NE, pady=6, ipadx=5)
         
         # set weights for grid to format buttons
         self.grid_columnconfigure(1, weight=1)
@@ -182,11 +194,13 @@ class EntryPage(tk.Frame):
         button2.grid(row=2, column=2, ipadx=9, padx=5, sticky=E) 
         button3 = ttk.Button(self, text="Clear Loaded Transactions",
                              command=lambda: clear_payment_box(self))
-        button3.grid(row=1, column=3, sticky=W)
-
-        button4 = ttk.Button(self, text="Return to Main Menu",
+        button3.grid(row=1, column=3, ipadx=1,sticky=W)
+        button4 = ttk.Button(self, text="Delete Sparak Transactions", 
+                             command=lambda: delete_sparak_entries(self))
+        button4.grid(row=2, column=3, sticky=W)
+        button5 = ttk.Button(self, text="Return to Main Menu",
                             command=lambda: controller.show_frame(StartPage))
-        button4.grid(row=2, column=3, ipadx=13, sticky=W)
+        button5.grid(row=3, column=3, ipadx=14, sticky=W)
  
         # Tree Formatting
         tree = ttk.Treeview(self)
@@ -322,28 +336,15 @@ class EntryPage(tk.Frame):
         # Starts from Input Transactions screen then selects the green
         # 'New Transaction' button to bring up the 'New Transaction 
         # window. In New Tran window, primary for-loop iterates through
-        # paymentArray and enters values or tabs based upon 8-digit
-        # counter. 8-digit counter is reset when an entry is confirmed. 
+        # paymentArray and enters values or tabs based upon 6-digit
+        # counter. 6-digit counter is reset when an entry is confirmed. 
         def enter_into_sparak(self, paymentArray):
-            time_interval = 0.002
-            start = timeit.default_timer()
             if(len(paymentArray) == 0):
                 popupmsg('No entries available to enter. Please\nload entries to enter into Sparak.')
             else:
-                add_entry_pos = (32, 108)
-                dist_pos = (73, 250)
-                acct_pos = (248, 250)
-                tran_pos = (325, 250)
-                amt_pos = (422, 250)
-                date_pos = (529, 250)
-                desc_pos = (163, 313)
-                ok_button_pos = (245, 373)
-                cancel_button_pos = (398, 373)
-                exit_button_pos = (553, 373)
-
+                start = timeit.default_timer()
                 counter = 1
-
-                select_position(add_entry_pos)
+                select_position(ADD_ENTRY_POS)
                 pyautogui.PAUSE
 
                 for item in paymentArray:
@@ -351,11 +352,11 @@ class EntryPage(tk.Frame):
 
                     if counter < 6:
                         write_to_sparak(item)
-                        pyautogui.PAUSE = time_interval
+                        pyautogui.PAUSE = TIME_INTERVAL
                         tab_over()   
                     elif counter == 6:
                         write_to_sparak(item)       # Input Description
-                        pyautogui.PAUSE = time_interval
+                        pyautogui.PAUSE = TIME_INTERVAL
                         tab_over()                  # Move to 'Repeat Distribution' box
                         tab_over()                  # Move to ok_button
                         pyautogui.press('return')   # This pushes the entry
@@ -368,89 +369,20 @@ class EntryPage(tk.Frame):
             string_to_pass = 'Number of Entries: ' + str(len(paymentArray)/6) + '\nTime to complete: %.3f' % complete_time + ' seconds'
             popupmsg(string_to_pass)
 
-class DeletePage(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self,parent)
-# --------------------- Background Image ---------------------
-        width, height = 1024, 640
-        image = Image.open('slothBackground.png')
-        if image.size != (width, height):
-            image = image.resize((width, height), Image.ANTIALIAS)
-
-        image = ImageTk.PhotoImage(image)
-        bg_label = tk.Label(self, image = image)
-        bg_label.place(x=0, y=0, relwidth=1, relheight=1)
-        bg_label.image = image
-# --------------------- Background Image ---------------------
-
-        label = tk.Label(self, text=("Delete Sparak Transactions"), bg=BACKGROUND_COLOR, font=LARGE_FONT)
-        label.pack(pady=10,padx=10)
-
-        vcmd = (parent.register(self.onValidate),
-                '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
-        self.delete_count_entry = tk.Entry(self, validate = 'key', validatecommand = vcmd)
-        self.delete_count_text = tk.Text(self, height=10, width=40)
-        self.delete_count_entry.pack(side=TOP, fill=X)
-        self.delete_count_text.pack(side=BOTTOM, fill=BOTH, expand=True)
-
-        button1 = ttk.Button(self, text="Return to Main Menu",
-                            command=lambda: controller.show_frame(StartPage))
-        button1.pack() 
+        # Method deletes a user input number of transactions
+        def delete_sparak_entries(self):
+            entryAmt = askinteger('Delete Transactions','Enter the number of transactions to delete from Sparak')
+            if entryAmt is not None:
+                i = 0
+                while i < entryAmt:
+                    # not using select_position because it's slower than clicking coordinates.
+                    pyautogui.click(DELETE_BUTTON)
+                    pyautogui.pause = .05
+                    pyautogui.click(OK_BUTTON)
+                    i += 1
 
 
-        def receive_delete_count(self):
-            def get_entry_value(input_box):
-                print(entry_num.get())
-            input_box = tk.Tk()
-            input_box.wm_title("Input Sloth")
-            label = ttk.Label(input_box, text='Number of transactions to delete', font=NORM_FONT)
-            entry_num = tk.IntVar()
-            ent = ttk.Entry(input_box, textvariable=entry_num)
-            label.pack()
-            ent.pack(fill=X)
-            enter_button = ttk.Button(input_box, text="Enter", command = input_box.destroy)
-            cancel_button = ttk.Button(input_box, text="Cancel", command = input_box.destroy)
-            enter_button.pack(side=LEFT)
-            cancel_button.pack(side=LEFT)
-            input_box.lift()
-            input_box.mainloop()
 
-        #def validate(input_box, P):
-        #    input_box.enter_button.config(state=(NORMAL if P else DISABLED))
-        #    return True 
-
-        def delete_sparak_entries(entryAmt):
-            #import pyautogui
-            #entryAmt = 166
-            delete_button = (82, 109)
-            ok_button = (319, 374)
-
-            i = 0
-            while i < entryAmt:
-                # not using select_position because it's slower than clicking coordinates.
-                pyautogui.click(delete_button)
-                pyautogui.pause = .05
-                pyautogui.click(ok_button)
-                i += 1
-
-
-    def onValidate(self, d, i, P, s, S, v, V, W):
-        self.text.delete("1.0", "end")
-        self.text.insert("end","OnValidate:\n")
-        self.text.insert("end","d='%s'\n" % d)
-        self.text.insert("end","i='%s'\n" % i)
-        self.text.insert("end","P='%s'\n" % P)
-        self.text.insert("end","s='%s'\n" % s)
-        self.text.insert("end","S='%s'\n" % S)
-        self.text.insert("end","v='%s'\n" % v)
-        self.text.insert("end","V='%s'\n" % V)
-        self.text.insert("end","W='%s'\n" % W)
-
-        # Disallow anything but lowercase letters
-        valid = (S.lower() == S)
-        if not valid:
-            self.bell()
-        return valid
 
 
 
