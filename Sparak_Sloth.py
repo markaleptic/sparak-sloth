@@ -18,6 +18,7 @@ import timeit
 ###################################
 #           CONSTANTS             #
 ###################################
+working_directory = 'C:/Users/mallred/Documents/Visual Studio 2015/Projects/Sparak Sloth/Sparak Sloth'
 LARGE_FONT = ("Verdana", 12)
 NORM_FONT = ("Verdana", 10)
 SMALL_FONT = ("Verdana", 8)
@@ -342,44 +343,59 @@ class EntryPage(tk.Frame):
             if(len(paymentArray) == 0):
                 popupmsg('No entries available to enter. Please\nload entries to enter into Sparak.')
             else:
-                start = timeit.default_timer()
-                counter = 1
-                select_position(ADD_ENTRY_POS)
-                pyautogui.PAUSE
+                os.chdir(working_directory)
 
-                for item in paymentArray:
-                    print('Counter: ' + str(counter) +'\nArray Value: ' + str(item))
+                add_entry_button_location = pyautogui.locateOnScreen('plus_sign.png')
+            #### IF STATEMENT CAUSES APPLICATION TO GO INTO A NOT RESPONDING STATUS WHILE LOOKING FOR PNG
+                if add_entry_button_location != None:
+                    add_entry_button_location = pyautogui.center(add_entry_button_location)
+                    counter = 1
+                    select_position(ADD_ENTRY_POS)
+                    pyautogui.PAUSE
 
-                    if counter < 6:
-                        write_to_sparak(item)
-                        pyautogui.PAUSE = TIME_INTERVAL
-                        tab_over()   
-                    elif counter == 6:
-                        write_to_sparak(item)       # Input Description
-                        pyautogui.PAUSE = TIME_INTERVAL
-                        tab_over()                  # Move to 'Repeat Distribution' box
-                        tab_over()                  # Move to ok_button
-                        pyautogui.press('return')   # This pushes the entry
-                        counter = 0                 # Reset counter for next entry
-                    counter += 1
+                    start = timeit.default_timer()
+                    for item in paymentArray:
+                        print('Counter: ' + str(counter) +'\nArray Value: ' + str(item))
 
-            stop = timeit.default_timer()
-            complete_time = (stop - start)
+                        if counter < 6:
+                            write_to_sparak(item)
+                            pyautogui.PAUSE = TIME_INTERVAL
+                            tab_over()   
+                        elif counter == 6:
+                            write_to_sparak(item)       # Input Description
+                            pyautogui.PAUSE = TIME_INTERVAL
+                            tab_over()                  # Move to 'Repeat Distribution' box
+                            tab_over()                  # Move to ok_button
+                            pyautogui.press('return')   # This pushes the entry
+                            counter = 0                 # Reset counter for next entry
+                        counter += 1
+
+                    stop = timeit.default_timer()
+                    complete_time = (stop - start)
+                else:
+                    popupmsg('Could not find Sparak Transaction Input add entry button. Make sure Sparak is visible.')
 
             string_to_pass = 'Number of Entries: ' + str(len(paymentArray)/6) + '\nTime to complete: %.3f' % complete_time + ' seconds'
             popupmsg(string_to_pass)
 
         # Method deletes a user input number of transactions
         def delete_sparak_entries(self):
-            entryAmt = askinteger('Delete Transactions','Enter the number of transactions to delete from Sparak')
-            if entryAmt is not None:
-                i = 0
-                while i < entryAmt:
-                    # not using select_position because it's slower than clicking coordinates.
-                    pyautogui.click(DELETE_BUTTON)
-                    pyautogui.pause = .05
-                    pyautogui.click(OK_BUTTON)
-                    i += 1
+            os.chdir(working_directory)
+            delete_entry_button_location = pyautogui.locateOnScreen('delete_sign.png')
+            #### IF STATEMENT CAUSES APPLICATION TO GO INTO A NOT RESPONDING STATUS WHILE LOOKING FOR PNG
+            if delete_entry_button_location != None:
+                delete_entry_button_location = pyautogui.center(delete_entry_button_location)
+                entryAmt = askinteger('Delete Transactions','Enter the number of transactions to delete from Sparak')
+                if entryAmt is not None:
+                    i = 0
+                    while i < entryAmt:
+                        # not using select_position because it's slower than clicking coordinates.
+                        pyautogui.click(delete_entry_button_location)
+                        pyautogui.pause = .05
+                        pyautogui.click(OK_BUTTON)
+                        i += 1
+            else: 
+                popupmsg('Could not find Sparak Transaction Input screen. Make sure Sparak is visible and there are entries to delete.')
 
 
 
