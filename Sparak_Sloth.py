@@ -38,7 +38,7 @@ CANCEL_BUTTON_POS = (398, 373)
 EXIT_BUTTON_POS = (553, 373)
 TIME_INTERVAL = 0.002
 
-#Sparak Tran Codes
+# Sparak Tran Codes
 DEBIT_TRAN_CODE = [1, 7, 9, 12, 19, 23, 24, 29, 31, 35, 39, 41, 45, 47, 49, 56, 59, 62, 64, 67, 69, 73]
 CREDIT_TRAN_CODE = [2, 4, 6, 8, 11, 18, 22, 28, 30, 36, 40, 42, 46, 48, 50, 55, 58, 61, 63, 66, 68, 72]
 
@@ -52,8 +52,6 @@ input_transaction_count = 0
 
 
 #TODO: Create menu to see user statistics like how many times the application has been used, volume of debit / credits, # of entries
-
-#TODO: Add to setting menu the option to always add to the description of entries that the entry was made by the Sparak Accounting Sloth
 
 #TODO: Check the array for errors
         # Distribution Code = 0 < X <= 2 Digits
