@@ -19,11 +19,13 @@ include_files = ["slothicon.ico", "slothBackground.png", "delete_sign.png", "plu
                  r"C:\\Users\\mallred\\AppData\\Local\\Continuum\\Anaconda3\\DLLs\\tcl86t.dll",
                  r"C:\\Users\\mallred\\AppData\\Local\\Continuum\\Anaconda3\\DLLs\\tk86t.dll"
                 ]
+exclude_files = ["scipy","numpy","PyQt4","cffi","html","lxml"]
 
 cx_Freeze.setup(
     name = "Sparak Accounting Sloth",
     options = {"build_exe": {"packages"     :   build_packages, 
-                             "include_files":   include_files}},
+                             "include_files":   include_files,
+                             "excludes"     :   exclude_files}},
     version = "1.0",
     description = "Sparak Accounting Sloth",
     executables = executables
