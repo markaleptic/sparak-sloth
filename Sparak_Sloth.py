@@ -351,8 +351,8 @@ class EntryPage(tk.Frame):
                 else:
                     popupmsg('Could not find Sparak Transaction Input add entry button. Make sure Sparak is visible.')
 
-            string_to_pass = 'Number of Entries: ' + str(len(paymentArray)/6) + '\nTime to complete: %.3f' % complete_time + ' seconds'
-            popupmsg(string_to_pass)
+            #string_to_pass = 'Number of Entries: ' + str(len(paymentArray)/6) + '\nTime to complete: %.3f' % complete_time + ' seconds'
+            #popupmsg(string_to_pass)
 
         # Method deletes a user input number of transactions
         def delete_sparak_entries(self):
