@@ -62,6 +62,8 @@ input_transaction_count = 0
         # Description = 0 <= X <= 160 Characters
 
 
+
+
 def popupmsg(msg):
     popup = tk.Tk()
     popup.wm_title("Sloth Message")
@@ -86,7 +88,7 @@ class Sparak_Sloth(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, EntryPage, SettingsPage): # All pages have to go in the frames list for frames to pull up window
+        for F in (StartPage, EntryPage): # All pages have to go in the frames list for frames to pull up window
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -117,34 +119,10 @@ class StartPage(tk.Frame):
         button1 = ttk.Button(self, text="Enter Transactions",
                             command=lambda: controller.show_frame(EntryPage))
         button1.pack(pady=1, ipadx=6)
-        button2 = ttk.Button(self, text="Settings",
-                            command=lambda: controller.show_frame(SettingsPage))
-        button2.pack(pady=1, ipadx=22)
         button2 = ttk.Button(self, text="Quit Application",
-                            command=quit)
-        button2.pack(pady=1, ipadx=12)
-
-class SettingsPage(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self,parent)
-# --------------------- Background Image ---------------------
-        width, height = 1024, 640
-        image = Image.open('slothBackground.png')
-        if image.size != (width, height):
-            image = image.resize((width, height), Image.ANTIALIAS)
-
-        image = ImageTk.PhotoImage(image)
-        bg_label = tk.Label(self, image = image)
-        bg_label.place(x=0, y=0, relwidth=1, relheight=1)
-        bg_label.image = image
-# --------------------- Background Image ---------------------
-
-        label = tk.Label(self, text=("Settings"), bg=BACKGROUND_COLOR, font=LARGE_FONT)
-        label.pack(pady=10,padx=10)
-        button1 = ttk.Button(self, text="Return to Main Menu",
-                            command=lambda: controller.show_frame(StartPage))
-        button1.pack()                
-     
+                            command=sys.exit)
+        button2.pack(pady=1, ipadx=12)   
+    
 class EntryPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self,parent)
@@ -394,11 +372,6 @@ class EntryPage(tk.Frame):
                         i += 1
             else: 
                 popupmsg('Could not find Sparak Transaction Input screen. Make sure Sparak is visible and there are entries to delete.')
-
-
-
-
-
 
 app = Sparak_Sloth()
 app.geometry("640x640")     # Sets app window size
