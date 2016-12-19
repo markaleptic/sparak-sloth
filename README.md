@@ -83,4 +83,4 @@ The best way to work around Used Range issues:
  
 ### How to Install
 * CVB Employees reach out to me for an installer.
-* I use cx_Freeze to create an executable. Download source files and run ```python setup.py build``` in the terminal.
+* I use cx_Freeze to create an executable. Download source files and run ```$ python setup.py build``` in the command line.
