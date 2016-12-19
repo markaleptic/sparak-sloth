@@ -77,11 +77,10 @@ The best way to work around Used Range issues:
 * .xlsx 
 * .xlsm  
 
-
- 
 ### System Requirements
 * 64-bit Windows 10
 * 2007 Excel or newer
  
 ### How to Install
-* Reach out to me for an installer.
+* CVB Employees reach out to me for an installer.
+* I use cx_Freeze to create an executable. Download source files and run ```python setup.py build``` in the terminal.
