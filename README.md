@@ -23,7 +23,11 @@ and selected *Process*. This window shows the green plus button, red x button, e
 *Delete Transactions*  
 1. Open Sparak Accounting Sloth and go to *Enter Transactions* menu.  
 2. Click *Delete Transactions* button.  
-3. A pop up window will appear. Type in desired number of entries to delete and   
+3. A pop up window will appear. Type in desired number of entries to delete and hit Enter.
+
+*Capability*
+* Entering transactions: ~ 5 transactions per second
+* Deleting transactions: ~ 10 transactions per second
 
 
 
