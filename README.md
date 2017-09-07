@@ -32,6 +32,8 @@ and selected *Process*. This window shows the green plus button, red x button, e
 
 
 ### Excel Requirements & VBA
+Check out what I did [here](https://github.com/markaleptic/sparak-sloth/blob/master/Payment-Sheet/README.md) with my Payment Sheet.
+
 For the Excel file to be read into Sparak Accounting Sloth correctly, you must format and manage Excel's *Used Range* diligently. 
 
 *VBA*  
@@ -50,20 +52,12 @@ Each row in the Excel sheet represents an entry. Each column represents values b
 |:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|
 | Distribution Code | Account Number | Tran Code | Entry Amount | Effective Date | Description |
 
-You can either manually type in the transaction information (this doesn't make much sense if you can automate with VBA) or paste in some data and use VBA to fill in the remaining portions automatically from predetermined settings. **Remember, I want to help you do this so reach out to me.**
-
-Keep in mind if you're convinced manual entries are better:
-* Inncorrect or nonexistent dist or tran codes, account numbers, or dates will be denied by Sparak. If this occurs, the method of entering payments will likely skip this entry and move on to the next.
-* Distribution and Tran codes never go beyonds the tens place and are greater than zero.
-* Entry Amounts are greater than zero.
-* Effective Dates cannot be in the future.
-* Empty descriptions mean just leaving the cell empty.
+You can either manually type in the transaction information (this doesn't make much sense where you can automate with VBA) or paste in some data and use VBA to fill in the remaining portions automatically from predetermined settings. *Remember, I want to help you do this so reach out to me.*
 
 There is limited handling of data constraints within this application. Meaning, this program relies on the user to see these mistakes once the file is 
 loaded in and incorrect types to be restricted by Sparak during the entry period.   
 
-Future updates will provide additional popup messages to inform the user that there could be input errors.
- 
+Future updates may provide additional popup messages to inform the user that there could be input errors.
  
 *Managing the Used Range*  
 Sparak Accounting Sloth determines the number of entries to make based upon multiple factors including the used range in a sheet. If used range is expanded beyond Column F and the user specified number of rows then the incorrect values will be read into the application.    
@@ -87,4 +81,5 @@ The best way to work around Used Range issues:
  
 ### How to Install
 * CVB Employees reach out to me for an installer.
+* See the .msi installer located [here](https://github.com/markaleptic/sparak-sloth/blob/master/Sparak%20Accounting%20Sloth-1.0-amd64.msi).
 * I use cx_Freeze to create an executable. Download source files and run ```$ python setup.py build``` in the command line.
