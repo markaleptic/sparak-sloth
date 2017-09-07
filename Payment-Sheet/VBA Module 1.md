@@ -1,4 +1,4 @@
-# Insert Sub Routine to move exported Sparak data into Import Sheete
+# Insert Sub Routine to move exported Sparak data into Import Sheet
 ```
 Sub insert_import()
     
