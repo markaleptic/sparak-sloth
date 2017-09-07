@@ -1,8 +1,6 @@
 # VBA Module Code
 
-Primary code that creates entries that can be entered into Sparak via Sparak Sloth. GL Accounts Numbers are redacted. 
-This code was run every day for about a year and worked beautifully.
-
+Primary code that creates entries that can be entered into Sparak via Sparak Sloth. GL Accounts Numbers are redacted.
 After copying payments from our check register  into Payment Sheet tab, the code determines GL entries for regular, 
 ORE, and deficiency accounts, splits entries based on preferred accounting guidelines per CFO, formats entries, looks 
 for common errors, error handling, and accepts user input for wire totals.
