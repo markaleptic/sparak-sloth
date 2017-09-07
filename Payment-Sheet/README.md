@@ -35,3 +35,9 @@ This code is used by the Payment Sheet status formula to determine if a loan is 
 ```
 =IFERROR(IF((AND(F2=0,G2>0,C2<>11)),TRUE, FALSE),FALSE)
 ```
+
+# Payment Sheet with entries
+![Image](https://github.com/markaleptic/sparak-sloth/blob/master/Payment-Sheet/Before.PNG)
+# Exported Payment Sheet
+
+![Image](https://github.com/markaleptic/sparak-sloth/blob/master/Payment-Sheet/After.PNG)
