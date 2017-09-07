@@ -25,7 +25,7 @@ VLOOKUP(A4,'Import Sheet'!$A$2:$E$757,3,FALSE)))),"ERROR")
 --------------------------------------------------------------------------------------------------------------------
 # Import Sheet
 Below is a screenshot of the Import Sheet. This area is not handled by the individual, but the import module from [Module 1](https://github.com/markaleptic/sparak-sloth/blob/master/Payment-Sheet/VBA%20Module%201.md).
-Private data is redacted, while other data is included to show the time of data provided by Sparak.
+Private data is redacted, while other data is included to show the type of data provided by Sparak.
 
 ![Image of Import Sheet](https://github.com/markaleptic/sparak-sloth/blob/master/Payment-Sheet/Import_Sheet.PNG "Import Sheet screenshot")
 
