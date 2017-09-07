@@ -14,56 +14,32 @@ import datetime
 import time
 import timeit
 
-
 ###################################
 #           CONSTANTS             #
 ###################################
-working_directory = 'C:/Users/mallred/Documents/Visual Studio 2015/Projects/Sparak Sloth/Sparak Sloth'
+WRK_DIR = 'C:/Program Files/Sparak Accounting Sloth'
 LARGE_FONT = ("Verdana", 12)
 NORM_FONT = ("Verdana", 10)
 SMALL_FONT = ("Verdana", 8)
 BACKGROUND_COLOR = Color("#FCEBAE")
-SPARAK_TIME_FORMAT = "%m%d%Y"
-DELETE_BUTTON = (82, 109)
-OK_BUTTON = (319, 374)
-ADD_ENTRY_POS = (32, 108)
-DIST_POS = (73, 250)
-ACCT_POS = (248, 250)
-TRAN_POS = (325, 250)
-AMT_POS = (422, 250)
-DATE_POS = (529, 250)
-DESC_POS = (163, 313)
-OK_BUTTON_POS = (245, 373)
-CANCEL_BUTTON_POS = (398, 373)
-EXIT_BUTTON_POS = (553, 373)
 TIME_INTERVAL = 0.002
-
 # Sparak Tran Codes
 DEBIT_TRAN_CODE = [1, 7, 9, 12, 19, 23, 24, 29, 31, 35, 39, 41, 45, 47, 49, 56, 59, 62, 64, 67, 69, 73]
 CREDIT_TRAN_CODE = [2, 4, 6, 8, 11, 18, 22, 28, 30, 36, 40, 42, 46, 48, 50, 55, 58, 61, 63, 66, 68, 72]
 
 ###################################
-#        Global Variables         #     
+#        Global Variables         #
 ###################################
 debit_entry_total = 0.00
 credit_entry_total = 0.00
 input_file_name = "No File Selected"
 input_transaction_count = 0
 
-
-#TODO: Create menu to see user statistics like how many times the application has been used, volume of debit / credits, # of entries
-
-#TODO: Check the array for errors
-        # Distribution Code = 0 < X <= 2 Digits
-        # Account Number = 0 < X <= 10 digits
-        # Tran Code = 0 < X <= 2 Digits
-        # Amount = < 0
-        # Date = X <= Today
-        # Description = 0 <= X <= 160 Characters
-
-
-
-
+###################################################
+# Method receives a string message that user needs
+# to see and shows via popup message box. Popup 
+# disappears after user clicks okay.
+###################################################
 def popupmsg(msg):
     popup = tk.Tk()
     popup.wm_title("Sloth Message")
@@ -113,14 +89,13 @@ class StartPage(tk.Frame):
         bg_label.image = image
 # --------------------- Background Image ---------------------
 
+        # Header
         label = tk.Label(self, text=("Sparak Accounting Sloth"), bg=BACKGROUND_COLOR, font=LARGE_FONT)
         label.pack(pady=10,padx=10) 
-
-        button1 = ttk.Button(self, text="Enter Transactions",
-                            command=lambda: controller.show_frame(EntryPage))
+        # Buttons
+        button1 = ttk.Button(self, text="Enter Transactions", command=lambda: controller.show_frame(EntryPage))
         button1.pack(pady=1, ipadx=6)
-        button2 = ttk.Button(self, text="Quit Application",
-                            command=sys.exit)
+        button2 = ttk.Button(self, text="Quit Application", command=sys.exit)
         button2.pack(pady=1, ipadx=12)   
     
 class EntryPage(tk.Frame):
@@ -137,7 +112,10 @@ class EntryPage(tk.Frame):
         bg_label.place(x=0, y=0, relwidth=1, relheight=1)
         bg_label.image = image
 # ------------------------------------------------------------
-
+        #########################################################
+        # GUI method creates box to see input file, entries, and 
+        # credit / debit totals
+        #########################################################
         def set_transaction_text(self):
             label_text = (  "Input File Name: \t" + input_file_name + 
                           "\nEntry Count:\t" + str(int(input_transaction_count)) + 
@@ -153,7 +131,7 @@ class EntryPage(tk.Frame):
         entry_data_label = tk.Label(self, text=set_transaction_text(self),justify=LEFT, relief=GROOVE)
         entry_data_label.grid(row=1, column=1, rowspan=4, columnspan=1, sticky=NE, pady=6, ipadx=5)
         
-        # set weights for grid to format buttons
+        # Set weights for grid to format buttons
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(1, weight=1)      
         self.grid_columnconfigure(2, weight=1)
@@ -162,21 +140,16 @@ class EntryPage(tk.Frame):
         self.grid_rowconfigure(3, weight=1)
         self.grid_columnconfigure(4, weight=1)
         self.grid_rowconfigure(4, weight=1)
-
-        button1 = ttk.Button(self, text="Load Transactions",
-                             command=lambda: selectFile(self))
+        # Buttons
+        button1 = ttk.Button(self, text="Load Transactions", command=lambda: selectFile(self))
         button1.grid(row=1, column=2, ipadx=10, padx=5, sticky=E)
-        button2 = ttk.Button(self, text="Enter Transactions",
-                             command=lambda: enter_into_sparak(self, paymentArray))
+        button2 = ttk.Button(self, text="Enter Transactions", command=lambda: enter_into_sparak(self, paymentArray))
         button2.grid(row=2, column=2, ipadx=9, padx=5, sticky=E) 
-        button3 = ttk.Button(self, text="Clear Loaded Transactions",
-                             command=lambda: clear_payment_box(self))
+        button3 = ttk.Button(self, text="Clear Loaded Transactions", command=lambda: clear_payment_box(self))
         button3.grid(row=1, column=3, ipadx=1,sticky=W)
-        button4 = ttk.Button(self, text="Delete Sparak Transactions", 
-                             command=lambda: delete_sparak_entries(self))
+        button4 = ttk.Button(self, text="Delete Sparak Transactions", command=lambda: delete_sparak_entries(self))
         button4.grid(row=2, column=3, sticky=W)
-        button5 = ttk.Button(self, text="Return to Main Menu",
-                            command=lambda: controller.show_frame(StartPage))
+        button5 = ttk.Button(self, text="Return to Main Menu", command=lambda: controller.show_frame(StartPage))
         button5.grid(row=3, column=3, ipadx=14, sticky=W)
  
         # Tree Formatting
@@ -202,14 +175,15 @@ class EntryPage(tk.Frame):
         # Class Object Array
         paymentArray = []
 
-        # Method opens file explorer for user to select 
-        #input file
+        ##########################################################
+        # Method opens file explorer for user to select input file
+        ##########################################################
         def selectFile(self):
             global input_file_name
             # Add adjustment to show all forms of excel files - xlsm, xls, etc
             filename = askopenfilename(filetypes = [("Excel Files","*.xlsx; *.xlsm")],
                                title = "Choose a file:")
-            filename = str(filename)
+            path_to_file = str(filename)
 
             if filename:
                 mylist = filename.split("/")
@@ -222,19 +196,17 @@ class EntryPage(tk.Frame):
                     filepath = filepath + mylist[i] + "/"
                     i = i + 1
                 input_file_name = filename
-                openFile(filepath, filename)
+                openFile(path_to_file)
             else:
                 popupmsg("There was an error opening the file you\nselected or a file was not selected.")
 
+        ########################################################
         # Method opens input file and appends paymentArray with
-        # values from the excel file
-        def openFile(filepath, filename):       
-
-            os.chdir(filepath)  # Change directory
-            wb = openpyxl.load_workbook(filename)
-    
-            # Add functionality to select which sheet with a dialogue  box or something
-            sheet = wb.get_sheet_by_name('Payment Sheet')
+        # values from the input file
+        ########################################################
+        def openFile(path_to_file):       
+            wb = openpyxl.load_workbook(path_to_file)
+            sheet = wb.get_sheet_by_name('Payment Sheet') # Add functionality to select sheet
             end_of_sheet_range = get_column_letter(sheet.max_column) + str(sheet.max_row)
             
             # Fill array with excel data
@@ -248,9 +220,11 @@ class EntryPage(tk.Frame):
                         paymentArray.append(cellObj.value)
             # Call method to fill table in frame with array values
             entryFill(self, paymentArray)
-        
+
+        ##########################################################
         # Method fills table in entry frame with the array values
         # and fills text window with debit / credit totals
+        ##########################################################
         def entryFill(self, paymentArray):
             global debit_entry_total
             global credit_entry_total
@@ -273,10 +247,11 @@ class EntryPage(tk.Frame):
                 popupmsg('There was an issue with loading your transactions.\nPlease make sure you\'re input file has the correct\namount of entries and each part of the entry is\ninput correctly.')
             
             entry_data_label.configure(text=set_transaction_text(self))
-            #popupmsg('Total Debit Entries: ' + str(debit_entry_total) + '\nTotal Credit Entries: ' + str(credit_entry_total))
 
-        # Method empties the entries from table, clears array,
-        # and resets credit / debit totals.
+        ########################################################
+        # GUI method resets interface: empties the entries from 
+        # table, clears array, and resets credit / debit totals.
+        ########################################################
         def clear_payment_box(self):
             global debit_entry_total
             global credit_entry_total
@@ -298,80 +273,73 @@ class EntryPage(tk.Frame):
             input_transaction_count = 0
             entry_data_label.configure(text=set_transaction_text(self))
 
-        def write_to_sparak(sparak_value):
-            pyautogui.typewrite(str(sparak_value))
-
-        def tab_over():
-            pyautogui.press('tab')
+        ###########################################################
         # Method receives a x, y coordinate variable, moves to the
         # coordinate and clicks it
+        ###########################################################
         def select_position(coordinate_variable):
             pyautogui.moveTo(coordinate_variable, duration=.5)
             pyautogui.click()
-        
-        # Method receives paymentArray into input values into Sparak
+
+        ################################################################
+        # Method receives paymentArray to input values into Sparak.
         # Starts from Input Transactions screen then selects the green
         # 'New Transaction' button to bring up the 'New Transaction 
         # window. In New Tran window, primary for-loop iterates through
         # paymentArray and enters values or tabs based upon 6-digit
         # counter. 6-digit counter is reset when an entry is confirmed. 
+        ################################################################
         def enter_into_sparak(self, paymentArray):
             if(len(paymentArray) == 0):
                 popupmsg('No entries available to enter. Please\nload entries to enter into Sparak.')
             else:
-                os.chdir(working_directory)
-
+                os.chdir(WRK_DIR)
                 add_entry_button_location = pyautogui.locateOnScreen('plus_sign.png')
-            #### IF STATEMENT CAUSES APPLICATION TO GO INTO A NOT RESPONDING STATUS WHILE LOOKING FOR PNG
                 if add_entry_button_location != None:
                     add_entry_button_location = pyautogui.center(add_entry_button_location)
                     counter = 1
-                    select_position(ADD_ENTRY_POS)
+                    select_position(add_entry_button_location)
                     pyautogui.PAUSE
 
-                    start = timeit.default_timer()
+                    
                     for item in paymentArray:
-                        print('Counter: ' + str(counter) +'\nArray Value: ' + str(item))
-
                         if counter < 6:
-                            write_to_sparak(item)
-                            pyautogui.PAUSE = TIME_INTERVAL
-                            tab_over()   
+                            pyautogui.typewrite(str(item))      # Input array value into Trans Input
+                            pyautogui.PAUSE = TIME_INTERVAL     # Forcing the time_inverval to a small number speeds up the process
+                            pyautogui.press('tab')              # Move to next entry area
                         elif counter == 6:
-                            write_to_sparak(item)       # Input Description
+                            pyautogui.typewrite(str(item))      # Input Description
+                            pyautogui.PAUSE = TIME_INTERVAL     # Forcing the time_inverval to a small number speeds up the process
+                            pyautogui.press('tab')              # Move to 'Repeat Distribution' box
                             pyautogui.PAUSE = TIME_INTERVAL
-                            tab_over()                  # Move to 'Repeat Distribution' box
-                            tab_over()                  # Move to ok_button
-                            pyautogui.press('return')   # This pushes the entry
-                            counter = 0                 # Reset counter for next entry
-                        counter += 1
-
-                    stop = timeit.default_timer()
-                    complete_time = (stop - start)
+                            pyautogui.press('tab')              # Move to ok_button
+                            pyautogui.PAUSE = TIME_INTERVAL
+                            pyautogui.press('return')           # This pushes the entry
+                            counter = 0                         # Reset counter for next entry
+                        counter += 1     
                 else:
-                    popupmsg('Could not find Sparak Transaction Input add entry button. Make sure Sparak is visible.')
-
-            #string_to_pass = 'Number of Entries: ' + str(len(paymentArray)/6) + '\nTime to complete: %.3f' % complete_time + ' seconds'
-            #popupmsg(string_to_pass)
-
+                    popupmsg('I could not find Sparak\'s Transaction Input add entry\nbutton. Make sure Sparak is visible.')
+        
+        #####################################################
         # Method deletes a user input number of transactions
+        #####################################################
         def delete_sparak_entries(self):
-            os.chdir(working_directory)
+            os.chdir(WRK_DIR)
             delete_entry_button_location = pyautogui.locateOnScreen('delete_sign.png')
-            #### IF STATEMENT CAUSES APPLICATION TO GO INTO A NOT RESPONDING STATUS WHILE LOOKING FOR PNG
             if delete_entry_button_location != None:
                 delete_entry_button_location = pyautogui.center(delete_entry_button_location)
                 entryAmt = askinteger('Delete Transactions','Enter the number of transactions to delete from Sparak')
                 if entryAmt is not None:
                     i = 0
                     while i < entryAmt:
-                        # not using select_position because it's slower than clicking coordinates.
                         pyautogui.click(delete_entry_button_location)
-                        pyautogui.pause = .05
-                        pyautogui.click(OK_BUTTON)
+                        pyautogui.pause = TIME_INTERVAL
+                        pyautogui.press('tab')
+                        pyautogui.pause = TIME_INTERVAL
+                        pyautogui.press('return')
                         i += 1
             else: 
-                popupmsg('Could not find Sparak Transaction Input screen. Make sure Sparak is visible and there are entries to delete.')
+                popupmsg('I could not find Sparak\'s Transaction Input screen.\nConfirm Sparak is visible and there are entries to delete.')
 
 app = Sparak_Sloth()
 app.geometry("640x640")     # Sets app window size
