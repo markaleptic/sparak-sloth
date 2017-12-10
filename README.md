@@ -1,6 +1,8 @@
 # Sparak Accounting Sloth
 *Automate book keeping within Sparak (D+H AIS) Transaction Input Area*
 
+![Sparak Accounting Sloth](https://github.com/markaleptic/sparak-sloth/blob/master/sparak_accounting_sloth_gif.gif)
+
 ### Description
 Sparak Accounting Sloth automates manual book keeping entries into the Sparak Accounting System (D+H AIS)
 by receiving entries from an Excel file and booking each entry through the Transaction Input Area.
